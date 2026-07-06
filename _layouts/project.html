@@ -1,0 +1,11 @@
+---
+layout: default
+---
+<article class="prose">
+  <p class="breadcrumb"><a href="{{ '/projects/' | relative_url }}">projects</a></p>
+  <header class="post-header">
+    <h1 class="page-title">{{ page.title }}</h1>
+    {% if page.excerpt_text %}<p class="post-meta">{{ page.excerpt_text }}</p>{% endif %}
+  </header>
+  {{ content }}
+</article>

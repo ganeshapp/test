@@ -1,0 +1,11 @@
+---
+layout: null
+---
+[
+{% assign sep = "" %}
+{% for post in site.posts %}{{ sep }}{"title": {{ post.title | jsonify }}, "url": {{ post.url | jsonify }}, "type": "blog · {{ post.date | date: '%Y' }}", "content": {{ post.content | strip_html | normalize_whitespace | jsonify }}}{% assign sep = "," %}{% endfor %}
+{% for doc in site.wiki %}{{ sep }}{"title": {{ doc.title | jsonify }}, "url": {{ doc.url | jsonify }}, "type": "wiki", "content": {{ doc.content | strip_html | normalize_whitespace | jsonify }}}{% assign sep = "," %}{% endfor %}
+{% for doc in site.essays %}{{ sep }}{"title": {{ doc.title | jsonify }}, "url": {{ doc.url | jsonify }}, "type": "essay", "content": {{ doc.content | strip_html | normalize_whitespace | jsonify }}}{% assign sep = "," %}{% endfor %}
+{% for doc in site.projects %}{{ sep }}{"title": {{ doc.title | jsonify }}, "url": {{ doc.url | jsonify }}, "type": "project", "content": {{ doc.content | strip_html | normalize_whitespace | jsonify }}}{% assign sep = "," %}{% endfor %}
+{% for page in site.pages %}{% if page.layout == "album" %}{{ sep }}{"title": {{ page.title | jsonify }}, "url": {{ page.url | jsonify }}, "type": "album", "content": {{ page.blurb | default: "" | jsonify }}}{% assign sep = "," %}{% elsif page.title and page.url != "/404.html" and page.search != false %}{{ sep }}{"title": {{ page.title | jsonify }}, "url": {{ page.url | jsonify }}, "type": "page", "content": {{ page.content | strip_html | normalize_whitespace | jsonify }}}{% assign sep = "," %}{% endif %}{% endfor %}
+]

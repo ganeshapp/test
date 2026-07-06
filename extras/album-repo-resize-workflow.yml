@@ -1,0 +1,70 @@
+# Copy this file into the ganeshapp/album repo as:
+#   .github/workflows/resize.yml
+#
+# On every push it resizes any image wider/taller than 1600px down to 1600px
+# max dimension, recompresses JPEGs (quality 85), strips EXIF (including GPS
+# location!), and commits the result back. Keeps the repo and the visitors'
+# bandwidth small.
+name: Resize images
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  resize:
+    runs-on: ubuntu-latest
+    # don't loop on our own commit
+    if: github.event.head_commit == null || !contains(github.event.head_commit.message, '[resized]')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resize oversized images
+        run: |
+          pip install pillow --quiet
+          python3 - <<'EOF'
+          import os
+          from PIL import Image, ImageOps
+
+          MAX = 1600
+          exts = {".jpg", ".jpeg", ".png", ".webp"}
+          changed = 0
+          for root, dirs, files in os.walk("."):
+              dirs[:] = [d for d in dirs if not d.startswith(".")]
+              for f in files:
+                  ext = os.path.splitext(f)[1].lower()
+                  if ext not in exts:
+                      continue
+                  p = os.path.join(root, f)
+                  try:
+                      im = Image.open(p)
+                  except Exception:
+                      continue
+                  im = ImageOps.exif_transpose(im)  # bake in rotation before stripping EXIF
+                  if max(im.size) <= MAX and os.path.getsize(p) < 500_000:
+                      continue
+                  if max(im.size) > MAX:
+                      im.thumbnail((MAX, MAX), Image.LANCZOS)
+                  if ext in (".jpg", ".jpeg"):
+                      im = im.convert("RGB")
+                      im.save(p, "JPEG", quality=85, optimize=True, progressive=True)
+                  elif ext == ".png":
+                      im.save(p, "PNG", optimize=True)
+                  else:
+                      im.save(p)
+                  changed += 1
+                  print("resized", p)
+          print(f"{changed} image(s) processed")
+          EOF
+
+      - name: Commit resized images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Resize images to 1600px [resized]"
+          git push

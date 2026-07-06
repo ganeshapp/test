@@ -1,0 +1,19 @@
+---
+layout: default
+title: Essays
+permalink: /essays/
+---
+<div class="prose">
+  <h1 class="page-title">Essays</h1>
+  <p class="post-meta">timeless-ish writing, unlike the time-bound blog</p>
+
+  <ul class="page-list">
+    {% assign essays = site.essays | sort: "date" | reverse %}
+    {% for essay in essays %}
+      <li>
+        <span class="date">{% if essay.date %}{{ essay.date | date: "%b %Y" }}{% endif %}</span>
+        <a href="{{ essay.url | relative_url }}">{{ essay.title }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

@@ -1,0 +1,26 @@
+---
+layout: default
+title: Albums
+permalink: /albums/
+---
+<div class="prose">
+  <h1 class="page-title">Albums</h1>
+  <p class="post-meta">photos from places and things</p>
+</div>
+
+<div class="card-grid">
+  {% assign albums = site.pages | where: "layout", "album" | sort: "title" %}
+  {% for album in albums %}
+    <a class="card" href="{{ album.url | relative_url }}">
+      {% if album.cover %}
+        <img src="{{ album.cover | relative_url }}" alt="{{ album.title }}" loading="lazy">
+      {% else %}
+        <div class="no-image">&#9678;</div>
+      {% endif %}
+      <div class="card-body">
+        <h3>{{ album.title }}</h3>
+        <p>{{ album.blurb }}</p>
+      </div>
+    </a>
+  {% endfor %}
+</div>

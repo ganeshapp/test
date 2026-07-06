@@ -1,0 +1,76 @@
+title: "GAPP"
+subtitle: "My Digital Garden"
+description: "My Digital Garden"
+url: "https://www.gapp.in"
+baseurl: ""
+author:
+  name: "Gapp"
+copyright: "Ganesh APP"
+twitter_username: sagaro
+github_username: ganeshapp
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+timezone: Asia/Seoul
+
+permalink: /blog/:title/
+
+# Remote photo albums: a separate repo served via jsDelivr CDN
+# (photos don't count against GitHub Pages storage/bandwidth)
+album_repo: "ganeshapp/album"
+album_branch: "main"
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+feed:
+  path: feed.xml
+
+collections:
+  wiki:
+    output: true
+    permalink: /wiki/:path/
+  projects:
+    output: true
+    permalink: /projects/:path/
+  essays:
+    output: true
+    permalink: /essays/:path/
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+  - scope:
+      path: ""
+      type: wiki
+    values:
+      layout: wiki
+  - scope:
+      path: ""
+      type: projects
+    values:
+      layout: project
+  - scope:
+      path: ""
+      type: essays
+    values:
+      layout: essay
+  - scope:
+      path: ""
+    values:
+      layout: page
+
+exclude:
+  - extras
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - vendor
+  - .github

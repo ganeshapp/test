@@ -1,0 +1,22 @@
+---
+layout: default
+title: Blog
+permalink: /blog/
+---
+<div class="prose">
+  <h1 class="page-title">Blog</h1>
+  <p class="post-meta">{{ site.posts | size }} posts &middot; <a href="{{ '/feed.xml' | relative_url }}">rss</a></p>
+
+  {% assign by_year = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
+  {% for year in by_year %}
+    <h2 class="year-heading">{{ year.name }}</h2>
+    <ul class="page-list">
+      {% for post in year.items %}
+        <li>
+          <span class="date">{{ post.date | date: "%b %-d" }}</span>
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</div>

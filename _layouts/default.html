@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include head.html %}
+</head>
+<body>
+  {% include header.html %}
+  <main class="content">
+    {{ content }}
+  </main>
+  {% include footer.html %}
+  <div id="hover-preview" class="hover-preview" hidden></div>
+  <div id="lightbox" class="lightbox" hidden>
+    <button class="lb-close" aria-label="Close">&times;</button>
+    <button class="lb-prev" aria-label="Previous">&#8249;</button>
+    <img alt="">
+    <button class="lb-next" aria-label="Next">&#8250;</button>
+  </div>
+  <script src="{{ '/assets/js/main.js' | relative_url }}" defer></script>
+</body>
+</html>

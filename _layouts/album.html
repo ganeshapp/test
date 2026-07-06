@@ -1,0 +1,15 @@
+---
+layout: default
+---
+<article class="prose album-page">
+  <p class="breadcrumb"><a href="{{ '/albums/' | relative_url }}">albums</a></p>
+  <h1 class="page-title">{{ page.title }}</h1>
+  {{ content }}
+  <div class="photo-grid" id="photo-grid">
+    {% for img in page.images %}
+      <a href="{{ img | relative_url }}" class="photo-item" data-lightbox>
+        <img src="{{ img | relative_url }}" alt="{{ page.title }} photo {{ forloop.index }}" loading="lazy">
+      </a>
+    {% endfor %}
+  </div>
+</article>
