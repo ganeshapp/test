@@ -145,6 +145,9 @@
     if (BASE && p.indexOf(BASE) !== 0) return false;
     if (/\.(png|jpe?g|gif|webp|svg|pdf|xml|json|zip|mp4)$/i.test(p)) return false;
     if (a.hasAttribute('data-lightbox') || a.closest('.hover-preview')) return false;
+    // only preview links inside the page content, not nav/footer/breadcrumbs
+    if (!a.closest('main')) return false;
+    if (a.closest('.breadcrumb, .post-nav')) return false;
     return true;
   }
 
@@ -153,17 +156,13 @@
     var main = doc.querySelector('main .prose') || doc.querySelector('main') || doc.body;
     var titleEl = main.querySelector('.page-title') || doc.querySelector('h1') || doc.querySelector('title');
     var title = titleEl ? titleEl.textContent.trim() : url;
-    // strip nav/meta bits, take first few content blocks
-    var frag = document.createElement('div');
-    var blocks = main.querySelectorAll('p, ul, ol, h2, h3, blockquote, img');
-    var count = 0;
-    for (var i = 0; i < blocks.length && count < 5; i++) {
-      var b = blocks[i];
-      if (b.closest('.post-nav, .breadcrumb, .post-meta, header')) continue;
-      if (b.textContent.trim() === '' && b.tagName !== 'IMG') continue;
-      frag.appendChild(b.cloneNode(true));
-      count++;
-    }
+    // clone the whole article, minus chrome, so the popup is fully readable
+    var frag = main.cloneNode(true);
+    frag.querySelectorAll('.breadcrumb, .post-nav, .post-meta, .page-title, header, script').forEach(function (n) {
+      n.remove();
+    });
+    // skip previews with nothing worth showing (bare listing pages etc.)
+    if (frag.textContent.trim().length < 60 && !frag.querySelector('img')) return null;
     return '<div class="hp-title">' + escapeHtml(title) + '</div>' + frag.innerHTML;
   }
 
@@ -172,6 +171,7 @@
     if (url === location.href.split('#')[0]) return;
 
     function render(content) {
+      if (content === null) return;
       if (currentLink !== a) return;
       preview.innerHTML = content;
       preview.hidden = false;
@@ -201,16 +201,25 @@
       .catch(function () { /* silently skip */ });
   }
 
+  var hideTimer = null;
+
   function hidePreview() {
     clearTimeout(hoverTimer);
+    clearTimeout(hideTimer);
     currentLink = null;
     if (preview) preview.hidden = true;
+  }
+
+  function scheduleHide() {
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(hidePreview, 250); // grace period to reach the popup
   }
 
   if (preview && !isTouch) {
     document.addEventListener('mouseover', function (e) {
       var a = e.target.closest('a');
       if (!a || !isInternal(a)) return;
+      clearTimeout(hideTimer);
       currentLink = a;
       clearTimeout(hoverTimer);
       hoverTimer = setTimeout(function () { showPreview(a); }, 300);
@@ -218,12 +227,12 @@
     document.addEventListener('mouseout', function (e) {
       var a = e.target.closest('a');
       if (!a) return;
-      var to = e.relatedTarget;
-      if (to && (to.closest('.hover-preview') === preview)) return; // moved into popup
-      hidePreview();
+      clearTimeout(hoverTimer);
+      scheduleHide();
     });
-    preview.addEventListener('mouseleave', hidePreview);
-    document.addEventListener('scroll', hidePreview, { passive: true });
+    preview.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
+    preview.addEventListener('mouseleave', scheduleHide);
+    window.addEventListener('scroll', scheduleHide, { passive: true });
   }
 
   /* ---------- lightbox ---------- */
