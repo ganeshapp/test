@@ -175,19 +175,33 @@
       if (content === null) return;
       if (currentLink !== a) return;
       preview.innerHTML = content;
+      preview.style.maxHeight = '';
       preview.hidden = false;
+      preview.scrollTop = 0;
+
       var rect = a.getBoundingClientRect();
-      var top = rect.bottom + window.scrollY + 8;
       var left = rect.left + window.scrollX;
       var pw = preview.offsetWidth;
       if (left + pw > window.scrollX + document.documentElement.clientWidth - 12) {
         left = window.scrollX + document.documentElement.clientWidth - pw - 12;
       }
       if (left < 8) left = 8;
-      // flip above if not enough space below
-      if (rect.bottom + preview.offsetHeight + 16 > window.innerHeight && rect.top > preview.offsetHeight + 16) {
-        top = rect.top + window.scrollY - preview.offsetHeight - 8;
+
+      // open on whichever side of the link has room, and clamp the popup's
+      // height to that space so it never extends past the viewport edge
+      var gap = 8, margin = 12;
+      var spaceBelow = window.innerHeight - rect.bottom - gap - margin;
+      var spaceAbove = rect.top - gap - margin;
+      var h = preview.offsetHeight;
+      var below = h <= spaceBelow || spaceBelow >= spaceAbove;
+      var maxH = Math.max(below ? spaceBelow : spaceAbove, 140);
+      if (h > maxH) {
+        preview.style.maxHeight = maxH + 'px';
+        h = preview.offsetHeight;
       }
+      var top = below ? rect.bottom + window.scrollY + gap
+                      : rect.top + window.scrollY - h - gap;
+
       preview.style.top = top + 'px';
       preview.style.left = left + 'px';
     }
