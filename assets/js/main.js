@@ -232,6 +232,7 @@
 
   if (preview && !isTouch) {
     document.addEventListener('mouseover', function (e) {
+      if (preview.contains(e.target)) { clearTimeout(hideTimer); return; }
       var a = e.target.closest('a');
       if (!a || !isInternal(a)) return;
       clearTimeout(hideTimer);
@@ -240,6 +241,7 @@
       hoverTimer = setTimeout(function () { showPreview(a); }, 300);
     });
     document.addEventListener('mouseout', function (e) {
+      if (preview.contains(e.target)) return; // handled by preview's own mouseleave
       var a = e.target.closest('a');
       if (!a) return;
       clearTimeout(hoverTimer);
