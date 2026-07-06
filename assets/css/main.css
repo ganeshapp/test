@@ -454,7 +454,7 @@ th { background: var(--bg-raised); }
   z-index: 100;
   width: 28rem;
   max-width: calc(100vw - 2rem);
-  max-height: min(26rem, 65vh);
+  max-height: min(18rem, 45vh);
   overflow-y: auto;
   overscroll-behavior: contain;
   background: var(--bg-raised);
