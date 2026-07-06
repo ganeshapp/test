@@ -45,19 +45,25 @@ jobs:
                   except Exception:
                       continue
                   im = ImageOps.exif_transpose(im)  # bake in rotation before stripping EXIF
-                  if max(im.size) <= MAX and os.path.getsize(p) < 500_000:
+                  old_size = os.path.getsize(p)
+                  if max(im.size) <= MAX and old_size < 500_000:
                       continue
                   if max(im.size) > MAX:
                       im.thumbnail((MAX, MAX), Image.LANCZOS)
+                  tmp = p + ".tmp" + ext
                   if ext in (".jpg", ".jpeg"):
-                      im = im.convert("RGB")
-                      im.save(p, "JPEG", quality=85, optimize=True, progressive=True)
+                      im.convert("RGB").save(tmp, "JPEG", quality=85, optimize=True, progressive=True)
                   elif ext == ".png":
-                      im.save(p, "PNG", optimize=True)
+                      im.save(tmp, "PNG", optimize=True)
                   else:
-                      im.save(p)
-                  changed += 1
-                  print("resized", p)
+                      im.save(tmp)
+                  # only keep the re-encode if it actually saves bytes
+                  if os.path.getsize(tmp) < old_size:
+                      os.replace(tmp, p)
+                      changed += 1
+                      print("resized", p, f"{old_size} -> {os.path.getsize(p)}")
+                  else:
+                      os.remove(tmp)
           print(f"{changed} image(s) processed")
           EOF
 

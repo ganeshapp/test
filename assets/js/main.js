@@ -145,9 +145,10 @@
     if (BASE && p.indexOf(BASE) !== 0) return false;
     if (/\.(png|jpe?g|gif|webp|svg|pdf|xml|json|zip|mp4)$/i.test(p)) return false;
     if (a.hasAttribute('data-lightbox') || a.closest('.hover-preview')) return false;
-    // only preview links inside the page content, not nav/footer/breadcrumbs
+    // only preview links inside the page content, not nav/footer/breadcrumbs,
+    // and not portfolio cards or photo grids (too distracting)
     if (!a.closest('main')) return false;
-    if (a.closest('.breadcrumb, .post-nav')) return false;
+    if (a.closest('.breadcrumb, .post-nav, .card-grid, .photo-grid')) return false;
     return true;
   }
 
